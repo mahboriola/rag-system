@@ -1,6 +1,6 @@
 # RAG System
 
-A Retrieval-Augmented Generation (RAG) system built with FastAPI, OpenAI, and Qdrant vector database. This system allows you to ingest documents and ask questions about their content using advanced language models.
+A Retrieval-Augmented Generation (RAG) system built with FastAPI, Streamlit, OpenAI, and Qdrant vector database. This system allows you to ingest documents and ask questions about their content using advanced language models.
 
 ## Prerequisites
 
@@ -133,3 +133,20 @@ The system consists of several components:
 
 2. **Question Answering**:
    - Question → Embedding generation → Vector search → Context retrieval → LLM response generation
+
+
+## Future Improvements
+### Data Ingestion:
+- Improve chunking strategies
+- Register the Product Names in a database and retrive them to feed the LLM and improve the results when extracting the product name from the user query
+- Extract metadata from each chunk to enhance search capabilities
+- Improve document ingestion time
+  
+### Data Retrieval:
+- Retrieve the product names from the database and pass them to the LLM to easily match the product name from the user query with the product name in the database
+- Detect the intent of the user query and use it to filter the search in the vector database based on the keywords
+  
+### General:
+- Add support for multiple LLM providers
+- Add support for other OCR providers
+- Add chat history as context to the LLM

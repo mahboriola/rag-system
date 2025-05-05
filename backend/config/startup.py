@@ -15,5 +15,5 @@ async def lifespan(app: FastAPI):
         logger.error(f"Error during Vector DB Collection check: {e}")
         await VectorDatabase.create_collection()
         logger.info("Vector DB Collection created")
-    
+
     yield

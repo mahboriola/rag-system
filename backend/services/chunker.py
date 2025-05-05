@@ -5,8 +5,13 @@ from typing import Coroutine, List
 
 class TextChunker:
     """
-    A class for splitting text into chunks while maintaining semantic
-    coherence.
+    A service for splitting text documents into semantically meaningful chunks.
+
+    This class provides functionality to:
+    - Split text into chunks of configurable size
+    - Maintain context through overlapping chunks
+    - Clean and preprocess text content
+    - Handle various text formats and structures
     """
 
     def __init__(
@@ -23,11 +28,31 @@ class TextChunker:
             chunk_size (int): Maximum size of each chunk in characters
             chunk_overlap (int): Number of characters to overlap between chunks
             separator (str): The separator to use for splitting text
+            clean_html_tags (bool): Whether to remove HTML tags from the text
         """
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
         self.separator = separator
         self.clean_html_tags = clean_html_tags
+
+    def _clean_text(self, text: str) -> str:
+        """
+        Clean and preprocess text before chunking.
+
+        Args:
+            text (str): Raw text to clean
+
+        Returns:
+            str: Cleaned text with normalized whitespace and optional HTML removal
+        """
+        # Remove multiple newlines
+        text = re.sub(r"\n\s*\n", "\n\n", text)
+
+        # Remove HTML tags if enabled
+        if self.clean_html_tags:
+            text = re.sub(r"<[^>]+>", "", text)
+
+        return text.strip()
 
     async def _handle_long_segment(self, segment: str) -> List[str]:
         """Split long segments into smaller parts using word boundaries."""

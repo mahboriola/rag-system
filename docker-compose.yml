@@ -24,7 +24,7 @@ services:
       OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL}
       OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL}
       OPENAI_TYPE: ${OPENAI_TYPE}
-      QDRANT_ENDPOINT: qdrant
+      QDRANT_ENDPOINT: ${QDRANT_ENDPOINT}
       QDRANT_PORT: ${QDRANT_PORT}
       QDRANT_COLLECTION_NAME: ${QDRANT_COLLECTION_NAME}
       AZURE_OCR_ENDPOINT: ${AZURE_OCR_ENDPOINT}
@@ -43,7 +43,7 @@ services:
     volumes:
       - ./frontend:/app
     environment:
-      BACKEND_URL: http://backend:8000
+      BACKEND_URL: ${BACKEND_URL}
     depends_on:
       - backend
     networks:

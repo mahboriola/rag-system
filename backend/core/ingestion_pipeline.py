@@ -24,19 +24,42 @@ settings = Settings()
 
 
 class IngestionPipeline:
+    """
+    A pipeline that processes documents for storage in the RAG system.
+
+    This class coordinates the following steps:
+    1. Breaks documents into manageable chunks
+    2. Extracts metadata and contextual information
+    3. Generates vector embeddings
+    4. Stores chunks and metadata in the vector database
+    """
+
     def __init__(self, chunk_size: int = 1000, chunk_overlap: int = 200):
+        """Initialize the pipeline with required services."""
         self.chunker = TextChunker(
             chunk_size=chunk_size, chunk_overlap=chunk_overlap, clean_html_tags=True
         )
         self.llm = OpenAI()
         self.vector_database = VectorDatabase()
 
-    async def _extract_text_from_pdf(self, pdf: bytes, use_ocr: bool = False) -> str:
-        if not use_ocr:
+    async def _extract_text_from_pdf(self, pdf: bytes) -> str:
+        """
+        Extract text from a PDF document.
+
+        Args:
+            pdf (bytes): Raw content of the PDF document
+
+        Returns:
+            str: Extracted text in markdown format
+        """
+        try:
             md = MarkItDown()
             result = md.convert(BytesIO(pdf))
             pdf_md = result.markdown
-        else:
+        except:
+            pdf_md = ""
+
+        if not pdf_md.strip():
             di_client = DocumentIntelligenceClient(
                 endpoint=settings.AZURE_OCR_ENDPOINT,
                 credential=AzureKeyCredential(settings.AZURE_OCR_KEY),
@@ -54,6 +77,15 @@ class IngestionPipeline:
         return pdf_md
 
     async def _extract_metadata(self, text: str) -> Dict[str, str | List[str]]:
+        """
+        Extract metadata from the provided text.
+
+        Args:
+            text (str): Text content of the document
+
+        Returns:
+            Dict[str, str | List[str]]: Extracted metadata in JSON format
+        """
         response = await self.llm.client.chat.completions.create(
             messages=[
                 {
@@ -89,6 +121,16 @@ class IngestionPipeline:
     async def _embed_and_get_qdrant_point(
         self, chunk: str, metadata: Dict[str, Any]
     ) -> qdrant_models.PointStruct:
+        """
+        Generate vector embedding for a text chunk and create a Qdrant point.
+
+        Args:
+            chunk (str): Text chunk
+            metadata (Dict[str, Any]): Metadata associated with the chunk
+
+        Returns:
+            qdrant_models.PointStruct: Qdrant point with vector embedding and metadata
+        """
         # Embed the chunk
         embedding = await self.llm.get_embedding(chunk)
 
@@ -104,6 +146,13 @@ class IngestionPipeline:
     async def _store_chunks_in_vector_db(
         self, chunks: List[str], metadata: Dict[str, Any]
     ) -> None:
+        """
+        Store text chunks and their metadata in the vector database.
+
+        Args:
+            chunks (List[str]): List of text chunks
+            metadata (Dict[str, Any]): Metadata associated with the chunks
+        """
         point_tasks = []
         for chunk in chunks:
             if chunk.strip():
@@ -111,13 +160,18 @@ class IngestionPipeline:
         points = await asyncio.gather(*point_tasks)
         await self.vector_database.upsert(points)
 
-    async def process(
-        self, pdf_name: str, pdf_bytes: bytes, use_ocr: bool = False
-    ) -> List[str]:
+    async def process(self, pdf_name: str, pdf_bytes: bytes) -> List[str]:
         """
         Process the input text and return a list of chunks.
+
+        Args:
+            pdf_name (str): Name of the PDF file
+            pdf_bytes (bytes): Raw content of the PDF file
+
+        Returns:
+            List[str]: List of processed text chunks
         """
-        pdf_md = await self._extract_text_from_pdf(pdf_bytes, use_ocr)
+        pdf_md = await self._extract_text_from_pdf(pdf_bytes)
         metadata = await self._extract_metadata(pdf_md)
         metadata.update({"filename": pdf_name})
         chunks = await self.chunker.split_text(pdf_md)

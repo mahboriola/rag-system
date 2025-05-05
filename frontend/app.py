@@ -26,8 +26,7 @@ def upload_documents(files: List[UploadedFile]) -> dict:
     upload_endpoint = f"{BACKEND_URL}/documents"
 
     files_data = [
-        ("files", (file.name, file.getvalue(), "application/pdf"))
-        for file in files
+        ("files", (file.name, file.getvalue(), "application/pdf")) for file in files
     ]
 
     response = requests.post(upload_endpoint, files=files_data)
@@ -38,17 +37,15 @@ def get_answer(question: str) -> dict:
     """Get answer from the backend API"""
     question_endpoint = f"{BACKEND_URL}/question"
 
-    response = requests.post(
-        question_endpoint, json={"question": question}
-    )
+    response = requests.post(question_endpoint, json={"question": question})
     return response.json()
 
 
 # App title
 st.title("🤖 RAG System")
 
+# File upload section
 with st.expander("Document Upload", expanded=True):
-    # File upload section
     st.header("Document Upload")
     uploaded_files = st.file_uploader(
         "Upload PDF documents", type=["pdf"], accept_multiple_files=True
@@ -62,8 +59,8 @@ with st.expander("Document Upload", expanded=True):
                     f"Processed {result['documents_indexed']} documents with {result['total_chunks']} chunks"
                 )
 
+# Chat interface
 with st.expander("Chat", expanded=True):
-    # Chat interface
     st.header("Chat")
 
     # Display chat messages
