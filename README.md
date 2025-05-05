@@ -23,7 +23,8 @@ A Retrieval-Augmented Generation (RAG) system built with FastAPI, OpenAI, and Qd
 
 The services will be available at:
 - Backend API: http://localhost:8000
-- Qdrant Dashboard: http://localhost:6333
+- Frontend UI: http://localhost:8501
+- Qdrant Dashboard: http://localhost:6333/dashboard
 
 ## Environment Variables
 
@@ -43,6 +44,9 @@ The services will be available at:
 ### Azure Computer Vision (OCR)
 - `AZURE_OCR_ENDPOINT`: Azure Document Intelligence API endpoint
 - `AZURE_OCR_KEY`: Azure Document Intelligence API key
+
+### Frontend Configuration
+- `BACKEND_URL`: URL of the backend service (default: "http://localhost:8000" for local development)
 
 ## API Documentation
 You can access the API documentation at:
@@ -96,14 +100,31 @@ Example Response:
 }
 ```
 
+## User Interface
+
+The system includes a Streamlit-based frontend that provides a user-friendly interface for:
+
+1. **Document Upload**: 
+   - Easily upload PDF documents through a drag-and-drop interface
+   - View processing status and confirmation of successful ingestion
+
+2. **Interactive Chat**:
+   - Chat-like interface for asking questions about your documents
+   - Real-time responses from the RAG system
+   - Display of relevant document references for each answer
+   - Persistent chat history during the session
+
+To access the frontend interface, simply navigate to http://localhost:8501 after starting the services.
+
 ## Architecture
 
 The system consists of several components:
 
-1. **Backend Service**: FastAPI application handling document ingestion and question answering
-2. **Vector Database**: Qdrant for storing and retrieving document embeddings
-3. **Document Processing Pipeline**: Handles document chunking, OCR, and embedding generation
-4. **Question Answering Pipeline**: Processes questions using RAG techniques
+1. **Frontend Service**: Streamlit application providing the user interface
+2. **Backend Service**: FastAPI application handling document ingestion and question answering
+3. **Vector Database**: Qdrant for storing and retrieving document embeddings
+4. **Document Processing Pipeline**: Handles document chunking, OCR, and embedding generation
+5. **Question Answering Pipeline**: Processes questions using RAG techniques
 
 ## Data Flow
 

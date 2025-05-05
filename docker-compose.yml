@@ -1,4 +1,14 @@
 services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - ./qdrant_storage:/qdrant/storage
+    networks:
+      - rag-network
+  
   backend:
     build:
       context: ./backend
@@ -24,13 +34,18 @@ services:
     networks:
       - rag-network
 
-  qdrant:
-    image: qdrant/qdrant:latest
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - "6333:6333"
-      - "6334:6334"
+      - "8501:8501"
     volumes:
-      - ./qdrant_storage:/qdrant/storage
+      - ./frontend:/app
+    environment:
+      BACKEND_URL: http://backend:8000
+    depends_on:
+      - backend
     networks:
       - rag-network
 
